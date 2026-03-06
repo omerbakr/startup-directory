@@ -5,6 +5,10 @@ import morgan from "morgan";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 
+import authRouter from "#routes/auth.routes.js";
+
+import securityMiddleware from "#middlewares/security.middleware.js";
+
 const app = express();
 
 app.use(helmet());
@@ -19,9 +23,25 @@ app.use(
   })
 );
 
+app.use(securityMiddleware);
+
 app.get("/", (req, res) => {
   logger.info("Hello from Startup Directory!");
   res.status(200).send("Hello World!");
 });
+
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    message: "OK",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+  });
+});
+
+app.get("/api", (req, res) => {
+  res.status(200).json({ message: "Startup Directory API is running!" });
+});
+
+app.use("/api/auth", authRouter);
 
 export default app;
